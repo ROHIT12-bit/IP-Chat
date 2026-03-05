@@ -45,6 +45,23 @@ socket.on("disconnect", (reason) => {
 });
 
 
+// ── Wake up server before anything else ──
+async function wakeServer() {
+  const statusEl = document.getElementById("wake-status");
+  try {
+    statusEl.textContent = "Connecting to server...";
+    await fetch("/ping");
+    statusEl.textContent = "";
+    document.getElementById("join-btn").disabled = false;
+  } catch (e) {
+    statusEl.textContent = "Server is waking up, please wait...";
+    setTimeout(wakeServer, 3000);
+  }
+}
+
+document.getElementById("join-btn").disabled = true;
+wakeServer();
+
 function isValidIP(value) {
   const trimmed = value.trim();
   // Simple IPv4 pattern
