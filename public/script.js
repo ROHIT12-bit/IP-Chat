@@ -1,5 +1,11 @@
 // ── Connect to Socket.IO server ──
-const socket = io({ transports: ["polling", "websocket"] });
+const socket = io({
+  transports: ["polling", "websocket"],
+  upgrade: true,
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
+});
 
 // ── State ──
 let myUsername = "";
@@ -24,7 +30,20 @@ const userCount     = document.getElementById("user-count");
 const menuToggle    = document.getElementById("menu-toggle");
 const sidebar       = document.querySelector(".sidebar");
 
-// ── Validate an IPv4 or IPv6-ish address (loose check) ──
+// ── Connection status ──
+socket.on("connect", () => {
+  console.log("✅ Connected to server:", socket.id);
+});
+
+socket.on("connect_error", (err) => {
+  console.error("❌ Connection error:", err.message);
+});
+
+socket.on("disconnect", (reason) => {
+  console.warn("⚠️ Disconnected:", reason);
+});
+
+
 function isValidIP(value) {
   const trimmed = value.trim();
   // Simple IPv4 pattern
